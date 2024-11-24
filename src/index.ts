@@ -5,4 +5,3 @@ export * from "./langUtils";
 export * from "./propertyAtom";
 export * from "./store";
 export * from "./utils";
-

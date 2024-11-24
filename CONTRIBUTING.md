@@ -2,7 +2,7 @@
 ## Install Bun
 https://bun.sh/docs/installation
 
-## Install Inert dependencies
+## Install Nird dependencies
 
 ```sh
 bun i
@@ -15,7 +15,7 @@ https://bun.sh/docs/cli/test
 ```
 
 ## Create pull request
-https://github.com/kaigorod/inert/pulls
+https://github.com/kaigorod/Nird/pulls
 
 
 

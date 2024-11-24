@@ -31,7 +31,7 @@ test("set two times", () => {
 
 test("sub", () => {
   const numAtom = atom(2);
-  const fn = (_nextValue: number, _prevValue: number) => { };
+  const fn = (_nextValue: number, _prevValue: number) => {};
   const mockFn = mock(fn);
   numAtom.sub(mockFn);
   numAtom.set(3);

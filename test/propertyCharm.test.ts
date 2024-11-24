@@ -9,7 +9,7 @@ test("propertyAtom", () => {
 
   expect(elt0.get()).toBe(1);
 
-  const fn0 = (_nextValue: number, _prevValue: number) => { };
+  const fn0 = (_nextValue: number, _prevValue: number) => {};
   const fn1 = (_nextValue: number, _prevValue: number) => {
     throw new Error();
   };

@@ -21,7 +21,7 @@ test("set two times", () => {
 
 test("sub", () => {
   const numAtom = nano(2);
-  const fn = (_nextValue: number) => { };
+  const fn = (_nextValue: number) => {};
   const mockFn = mock(fn);
   numAtom.sub(mockFn);
   numAtom.set(3);

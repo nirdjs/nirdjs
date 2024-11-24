@@ -5,7 +5,7 @@ import { replaceArrayElt } from "./langUtils";
 /**
  * Creates atom of single element of an array.
  * @see {@link splitAtom} returns an atom array
- * 
+ *
  * @param source Atom which holds array
  * @param index of an element
  * @param config optional @see {@link AtomConfig}
@@ -30,25 +30,27 @@ export const arrayEltAtom = <Value>(
 
 /**
  * Utility function to update a single element of an array.
- * 
+ *
  * @param arrayAtom atom which holds array
  * @param index Index of element to update
- * @param updateFn Update function 
+ * @param updateFn Update function
  */
 export const updateElt = <Value>(
   arrayAtom: Atom<Array<Value>>,
   index: number,
   updateFn: UpdateFn<Value>,
 ): void => {
-  arrayAtom.update((array) => replaceArrayElt(array, index, updateFn(array[index])));
+  arrayAtom.update((array) =>
+    replaceArrayElt(array, index, updateFn(array[index])),
+  );
 };
 
 /**
- * 
- * @param source 
- * @param itemsConfig 
- * @param containerConfig 
- * @returns 
+ *
+ * @param source
+ * @param itemsConfig
+ * @param containerConfig
+ * @returns
  */
 export const splitAtom = <Value>(
   source: Atom<Array<Value>>,

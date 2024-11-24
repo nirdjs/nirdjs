@@ -7,7 +7,7 @@ type A = { a: string };
 test("when sources updates then derived updates", () => {
   const sourceAtom = atom<A>({ a: "1" });
   const derivedAtom = derive<A, string>(sourceAtom, ({ a }: A) => a, NeverSet);
-  const derivedSubscriber = (_nextValue: string, _prevValue: string) => { };
+  const derivedSubscriber = (_nextValue: string, _prevValue: string) => {};
   const mockFn = mock(derivedSubscriber);
   expect(derivedAtom.get()).toBe("1");
   derivedAtom.sub(mockFn);
@@ -23,9 +23,13 @@ test("when sources updates then derived updates", () => {
 test("derive", () => {
   const aAtom = atom({ a: "some string" });
   const beAtom = derive<A, string>(aAtom, ({ a }: A) => a, NeverSet);
-  const seeAtom = derive<string, number>(beAtom, (a: string) => a.length, NeverSet);
+  const seeAtom = derive<string, number>(
+    beAtom,
+    (a: string) => a.length,
+    NeverSet,
+  );
 
-  const derivedSubscriber = (_nextValue: number, _prevValue: number) => { };
+  const derivedSubscriber = (_nextValue: number, _prevValue: number) => {};
   const mockFn = mock(derivedSubscriber);
   expect(seeAtom.get()).toBe(11);
   seeAtom.sub(mockFn);

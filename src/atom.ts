@@ -10,11 +10,10 @@ let atomCounter = 0;
  */
 export type UpdateFn<Value> = (prev: Value) => Value;
 
-
 /**
  * Callback function to skip notification of subscriber when @see {@link Atom} value has not actually changed.
  * Should return `true` to skip notification, just as `===`.
- * 
+ *
  * @see {@link Atom.update}
  * @see {@link Atom.sub}
  */
@@ -33,7 +32,7 @@ export type AtomConfig<Value> = {
    * when previous and next value of the atom are the same, then
    * atom will not notify subscriber about the change.
    * This way you can avoid unnecessary recalculations and re-render of the UI.
-   * 
+   *
    * defaults to @see {@link isIdentical}.
    * For better performance, when your state is not weird, provide with deepEquals implementation.
    */
@@ -46,16 +45,16 @@ export type AtomConfig<Value> = {
 
 /**
  * a === b || (Number.isNaN(a) && Number.isNaN(b))
- * 
- * @param a 
- * @param b 
+ *
+ * @param a
+ * @param b
  * @returns true if and only if two values are identical
  */
 export const isIdentical = <Value>(a: Value, b: Value): boolean =>
   a === b || (Number.isNaN(a) && Number.isNaN(b));
 
 /**
- * Can be used as @see {@link AtomConfig.ignoreWhen} value. 
+ * Can be used as @see {@link AtomConfig.ignoreWhen} value.
  * Will cause atom to always notify subscriber even when the value has not bee not changed.
  */
 export const neverIgnore = undefined;
@@ -64,14 +63,14 @@ export const neverIgnore = undefined;
  * Used when no @see {@link atom()} config is provided
  */
 export const defaultConfig = {
-  /** 
-   * @see {@link isIdentical} 
+  /**
+   * @see {@link isIdentical}
    */
   ignoreWhen: isIdentical,
 
   /** using "atom" as default */
   debugLabel: "atom",
-  /** 
+  /**
    * helps debugging situations when you `atom.set(fn)` by mistake
    * @default false
    */
@@ -79,12 +78,12 @@ export const defaultConfig = {
 };
 
 const getStoreAtomValue = <Value>(atom: Atom<Value>): Value => {
-  return getStore().atom2value.get(atom.id()) as Value
-}
+  return getStore().atom2value.get(atom.id()) as Value;
+};
 
 const setStoreAtomValue = <Value>(atom: Atom<Value>, value: Value) => {
   return getStore().atom2value.set(atom.id(), value);
-}
+};
 
 /**
  * Atom type. Hold a specific value in a @see {@link Store}
@@ -93,41 +92,41 @@ export type Atom<Value> = {
   /**
    * returns number id of the atom. Doesn't change.
    */
-  id: () => number,
+  id: () => number;
   /**
-   * 
+   *
    * @returns current value of the atom in the Store
    */
-  get: () => Value,
+  get: () => Value;
   /**
    * Set new current value of the atom in the Store
-   * @param value 
-   * @returns 
+   * @param value
+   * @returns
    */
-  set: (value: Value) => void,
+  set: (value: Value) => void;
   /**
    * Perform update function to the result of get() and then set().
-   * @param updateFn 
-   * @returns 
+   * @param updateFn
+   * @returns
    */
-  update: (updateFn: UpdateFn<Value>) => void,
+  update: (updateFn: UpdateFn<Value>) => void;
   /**
    * Add new subscriber to this atom
-   * @param subscriber 
-   * @returns 
+   * @param subscriber
+   * @returns
    */
-  sub: (subscriber: Subscriber<Value>) => void,
+  sub: (subscriber: Subscriber<Value>) => void;
   /**
    * Remove this subscriber from the atom
-   * @param subscriber 
-   * @returns 
+   * @param subscriber
+   * @returns
    */
-  unsub: (subscriber: Subscriber<Value>) => void,
-  /** 
+  unsub: (subscriber: Subscriber<Value>) => void;
+  /**
    * return unique string representation of this atom and it's state
-  */
-  toString: () => string
-}
+   */
+  toString: () => string;
+};
 /**
  * Create new atom .
  * @param initialValue the value this atom gets initialy or resets to. Should be of type Value.
@@ -206,13 +205,13 @@ export const atom = <Value>(
     },
   };
 
-  atom.set(initialValue)
+  atom.set(initialValue);
 
   return atom;
 };
 
 /**
- * Performs atom transation. Internally: 
+ * Performs atom transation. Internally:
  * 1) starts postponing all atom notifications
  * 2) calls await @param fn()
  * 3) performs all postponed notifications

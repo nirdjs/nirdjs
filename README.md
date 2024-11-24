@@ -1,8 +1,7 @@
-# What is Inert
+# What is Nird
 
-Inert is an atomic state management library for React.
+Nird is an atomic state management library for React.
 
-Latest documentation is available at https://jsr.io/inert/doc
 
 ```jsx
 
@@ -46,7 +45,7 @@ So, when a counter changes then the components re-renders.
 ## Avoid setter callback hooks
 
 Notice, there is no `setCounter` function returned by the useValue hook. 
-One of the distiguishing features of Inert is that your Component doesn't 
+One of the distiguishing features of Nird is that your Component doesn't 
 have to subscribe to the changes of the hooks. 
 
 You can update Atom value by simple functions. 
@@ -79,8 +78,8 @@ To distinguish page renders, tools like redux, recoil, jotai use ReactContext-ba
 They use ReactContext providers at the root of the render tree and then use ReactContext on the leaves of the render tree.
 This is why they force users to create callbacks using hooks in order to pass the rendering context to the hooks.
 
-Unlike other libraries, Inert is using `AsyncLocalStorage` to pass rendering context to the callbacks and other functions. 
-This way Inert stay independent from the `ReactContext` and does not require developers to write hooks for callbacks.
+Unlike other libraries, Nird is using `AsyncLocalStorage` to pass rendering context to the callbacks and other functions. 
+This way Nird stay independent from the `ReactContext` and does not require developers to write hooks for callbacks.
 
 ###
 
@@ -207,7 +206,7 @@ const WordAndLetters = () => {
 ```jsx
 import { expect, mock, test } from "bun:test";
 import { splitAtom } from "../src/arrays";
-import { atom, type Atom } from "../src/inert";
+import { atom, type Atom } from "../src/Nird";
 
 test("atomList does not change when single value changes", () => {
   const arrayAtom = atom([10, 20]);
@@ -275,7 +274,7 @@ test("render two pages at the same time", () => {
 
 ```sh
 
-npx jsr add inert
+npx jsr add Nird
 
 # or
 
@@ -283,7 +282,7 @@ bunx
 
 # or
 
-deno add inert
+deno add Nird
 
 ```
 
@@ -292,7 +291,7 @@ This command will add the following line to your `package.json` file
 ```json
 {
   //in package.json, 
-  "inert": "npm:@jsr/kaigorod__inert",
+  "Nird": "npm:@jsr/kaigorod__Nird",
 }
 ```
 
@@ -310,9 +309,10 @@ export const setIsImageSearchOn = atomSetter(isImageSearchOnAtom);
 
 
 # Inspiration
-Inert is inspired by recoil and jotai state management libraries.
+Nird is inspired by recoil and jotai state management libraries.
 
 # Links
 
-- Github Repo https://github.com/kaigorod/inert
-- Deno Package https://jsr.io/inert
+- Github Repo https://github.com/nirdjs/nirdjs
+- Deno Package https://jsr.io/nirdjs
+- NPM https://www.npmjs.com/package/nirdjs
