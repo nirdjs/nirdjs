@@ -15,7 +15,7 @@ import { useValue } from "../src/useValue";
 
 const aAtom = atom(1);
 
-const Comp = ({}) => {
+const Comp = () => {
   const value = useValue(aAtom);
   return <button>{value}</button>;
 };

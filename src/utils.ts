@@ -1,4 +1,4 @@
-import { Atom } from "./atom";
+import type { Atom } from "./atom";
 
 export type AtomSetter<Value> = (value: Value) => void;
 

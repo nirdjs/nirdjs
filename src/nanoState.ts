@@ -9,7 +9,9 @@ export const nano = <T>(i: T) => {
     set: (n: T) => {
       if (v !== n) {
         v = n;
-        subs.forEach((s) => s(n));
+        for (const sub of subs) {
+          sub(n);
+        }
       }
     },
     sub: (s: (n: T) => void) => subs.push(s),

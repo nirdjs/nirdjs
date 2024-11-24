@@ -4,6 +4,9 @@ Nird is an atomic state management library for React.
 
 
 ```jsx
+
+// https://playcode.io/2166584
+
 import { atom, useValue } from 'nirdjs';
 
 const counterAtom = atom(0);
@@ -20,6 +23,7 @@ export const App = () => {
 };
 
 ```
+
 
 # State management best practices
 

@@ -1,12 +1,13 @@
 import {
-  Fragment,
   createElement,
+  Fragment,
   type FunctionComponentElement,
   type ReactNode,
 } from "react";
 import { createAtomStore, type AtomStore } from "../store";
 
 import { AsyncLocalStorage } from "node:async_hooks";
+import type { NoAttributesType } from "../langUtils";
 
 const asyncLocalStorage = AsyncLocalStorage
   ? new AsyncLocalStorage<AtomStore>()
@@ -17,7 +18,7 @@ export const asyncLocalStorageStoreProvider = (): AtomStore => {
   return store as AtomStore;
 };
 
-export const execWithAtom = (store: AtomStore, fn: any) => {
+export const execWithAtom = <R>(store: AtomStore, fn: () => R) => {
   return asyncLocalStorage.run(store, fn);
 };
 
@@ -27,9 +28,9 @@ export const AsyncLocalStorageAtomProvider = ({
 }: {
   children?: ReactNode;
   store?: AtomStore;
-}): FunctionComponentElement<{}> => {
+}): FunctionComponentElement<NoAttributesType> => {
   const theStore = store || createAtomStore();
   return execWithAtom(theStore, () => {
     return createElement(Fragment, {}, children);
-  }) as unknown as FunctionComponentElement<{}>;
+  });
 };

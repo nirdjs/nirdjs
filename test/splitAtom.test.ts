@@ -9,10 +9,10 @@ test("atomList does not change when single value changes", () => {
   const atom0: Atom<number> = splitArrayAtom.get()[0];
   const atom1: Atom<number> = splitArrayAtom.get()[1];
 
-  const nopFn = () => {};
-  const subAtomMock = mock(nopFn as any);
-  const sub0 = mock(nopFn as any);
-  const sub1 = mock(nopFn as any);
+  const nopFn = () => { };
+  const subAtomMock = mock(nopFn);
+  const sub0 = mock(nopFn);
+  const sub1 = mock(nopFn);
 
   /// test
 
