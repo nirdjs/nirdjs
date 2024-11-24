@@ -1,7 +1,7 @@
 {
   "name": "nirdjs",
   "type": "module",
-  "version": "0.1.26",
+  "version": "0.1.27",
   "source": "./index.ts",
   "main": "./build/cjs/index.js",
   "module": "./build/esm/index.js",

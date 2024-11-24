@@ -1,6 +1,6 @@
 {
   "name": "@nirdjs/nirdjs",
-  "version": "0.1.26",
+  "version": "0.1.27",
   "description": "Atomic state management library for React",
   "exports": "./src/index.ts",
   "publish": {
