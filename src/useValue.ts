@@ -9,7 +9,7 @@ import type { Atom, Subscriber } from "./atom";
  * @param atom
  * @returns current value of the @param atom, on every render
  */
-export const useValue = <Value>(atom: Atom<Value>) => {
+export const useValue = <Value>(atom: Atom<Value>): Value => {
   const [value, setValue] = useState(atom.get());
 
   useEffect(() => {
