@@ -1,0 +1,81 @@
+{
+  "name": "nirdjs",
+  "type": "module",
+  "version": "0.1.26",
+  "source": "./index.ts",
+  "main": "./build/cjs/index.js",
+  "module": "./build/esm/index.js",
+  "types": "./build/types/index.d.ts",
+  "files": [
+    "./build"
+  ],
+  "exports": {
+    "./*": {
+      "types": "./build/types/*.d.ts",
+      "require": "./build/cjs/*.js",
+      "import": "./build/esm/*.js",
+      "default": "./build/esm/*.js"
+    },
+    ".": {
+      "require": "./build/cjs/index.js",
+      "import": "./build/esm/index.js",
+      "default": "./build/esm/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "scripts": {
+    "up": "bun upgrade ; bun update --force ; bun run build ",
+    "format": "bunx @biomejs/biome format --write ./src/ ./test/",
+    "test": "bun test --watch",
+    "clean": "rm -Rf node_modules",
+    "publish": "",
+    "lint": "npx @biomejs/biome lint ./src ./test",
+    "esm": "tsc -b ./tsconfig.esm.json ",
+    "cjs": "tsc -b ./tsconfig.cjs.json ",
+    "types": "tsc -b ./tsconfig.types.json ",
+    "build": "tsc -b ./tsconfig.esm.json ./tsconfig.cjs.json ./tsconfig.types.json",
+    "build:clean": "rm -Rf ./build/"
+  },
+  "devDependencies": {
+    "@happy-dom/global-registrator": "^15.11.6",
+    "@types/bun": "^1.1.13",
+    "@types/node": "^22.9.3",
+    "biome": "^0.3.3",
+    "code-narrator": "^1.0.17",
+    "npm-run-all": "^4.1.5",
+    "typescript": "^5.7.2"
+  },
+  "dependencies": {
+    "@types/react": "^18.3.12",
+    "react": "^18.3.1"
+  },
+  "peerDependencies": {
+    "@types/react-dom": "^18.3.0",
+    "react-dom": "^18.3.1"
+  },
+  "license": "Apache-2.0",
+  "author": "Dima Kaigorodov",
+  "description": "An atomic state management library for React",
+  "keywords": [
+    "react",
+    "state management",
+    "frontend",
+    "state",
+    "manager",
+    "management",
+    "recoil",
+    "jotai",
+    "atom",
+    "atomic",
+    "react",
+    "charm",
+    "charmjs",
+    "zustand",
+    "store"
+  ],
+  "homepage": "https://jsr.io/@kaigorod/charm",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kaigorod/inert.git"
+  }
+}
