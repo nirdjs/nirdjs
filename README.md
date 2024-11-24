@@ -4,23 +4,20 @@ Nird is an atomic state management library for React.
 
 
 ```jsx
-
-// counterAtom.ts 
+import { atom, useValue } from "nirdjs";
 
 const counterAtom = atom(0);
 
 export const useCounter = () => useValue(counterAtom);
-export const inc = () => counterAtom.update(prev => prev + 1);
+export const inc = () => counterAtom.update((prev) => prev + 1);
 
 // Counter.tsx
 
-const Counter = () => {
+export const App = () => {
   const counter = useCounter();
 
-  return <button onclick={inc}>
-    clicked {counter} times
-  </button>
-}
+  return <button onclick={inc}>clicked {counter} times</button>;
+};
 
 ```
 
@@ -274,7 +271,7 @@ test("render two pages at the same time", () => {
 
 ```sh
 
-npx jsr add Nird
+npm add nirdjs
 
 # or
 

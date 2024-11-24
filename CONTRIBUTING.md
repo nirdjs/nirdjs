@@ -15,7 +15,7 @@ https://bun.sh/docs/cli/test
 ```
 
 ## Create pull request
-https://github.com/kaigorod/Nird/pulls
+https://github.com/nirdjs/nirdjs/pulls
 
 
 

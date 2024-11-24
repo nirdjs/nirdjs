@@ -4,4 +4,6 @@ export * from "./derive";
 export * from "./langUtils";
 export * from "./propertyAtom";
 export * from "./store";
+export * from "./useValue";
 export * from "./utils";
+

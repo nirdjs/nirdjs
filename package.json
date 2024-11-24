@@ -1,25 +1,22 @@
 {
   "name": "nirdjs",
   "type": "module",
-  "version": "0.1.27",
+  "version": "0.1.30",
   "source": "./index.ts",
-  "main": "./build/cjs/index.js",
-  "module": "./build/esm/index.js",
-  "types": "./build/types/index.d.ts",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "files": [
     "./dist"
   ],
   "exports": {
-    "./*": {
-      "types": "./build/types/*.d.ts",
-      "require": "./build/cjs/*.js",
-      "import": "./build/esm/*.js",
-      "default": "./build/esm/*.js"
+    "./index.d.ts": {
+      "types": "./dist/index.d.ts"
     },
     ".": {
-      "require": "./build/cjs/index.js",
-      "import": "./build/esm/index.js",
-      "default": "./build/esm/index.js"
+      "require": "./dist/index.cjs",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
     },
     "./package.json": "./package.json"
   },
@@ -29,7 +26,7 @@
     "format": "npx --trace-deprecation @biomejs/biome format --write ./src/ ./test/",
     "test": "bun test --watch",
     "build": "npm run tsup",
-    "publish": "npm publish",
+    "publish": "npm run tsup ; npm publish",
     "deno:publish": "deno publish --unstable-sloppy-imports --allow-dirty",
     "deno:prepare": "deno publish --unstable-sloppy-imports --allow-dirty --dry-run",
     "lint": "npx --trace-deprecation @biomejs/biome lint ./src ./test",
@@ -75,9 +72,9 @@
     "zustand",
     "store"
   ],
-  "homepage": "https://jsr.io/@kaigorod/charm",
+  "homepage": "https://npmjs.com/nirdjs",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/kaigorod/Nird.git"
+    "url": "git+https://github.com/nirdjs/nirdjs.git"
   }
 }
