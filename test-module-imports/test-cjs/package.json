@@ -1,0 +1,10 @@
+{
+  "name": "test-cjs",
+  "version": "1.0.0",
+  "description": "CommonJS module for testing",
+  "type": "module",
+  "main": "index.cjs",
+  "scripts": {
+    "test": "npm link nirdjs && node index.cjs && npm unlink nirdjs && rm -rf node_modules "
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "name": "test-esm",
+  "version": "1.0.0",
+  "description": "ESM module testing",
+  "main": "index.mjs",
+  "scripts": {
+    "test": "npm link nirdjs && node index.mjs && npm unlink nirdjs && rm -rf node_modules "
+  }
+}

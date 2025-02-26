@@ -1,7 +1,6 @@
 import { atom } from "./atom";
 import { useValue } from "./useValue";
 
-// biome-ignore lint/complexity/noBannedTypes: It's actually component with no attributes
 export type NoAttributesType = {};
 
 export const replaceArrayElt = <Value>(

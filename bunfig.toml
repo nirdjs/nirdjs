@@ -1,2 +1,3 @@
 [test]
+# https://bun.sh/guides/test/happy-dom
 preload = "./happydom.ts"
