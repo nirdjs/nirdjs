@@ -1,4 +1,3 @@
-import { expect, mock, test } from "bun:test";
 import { atom } from "../src/atom";
 import { NeverSet, derive } from "../src/derive";
 
@@ -8,7 +7,7 @@ test("when sources updates then derived updates", () => {
   const sourceAtom = atom<A>({ a: "1" });
   const derivedAtom = derive<A, string>(sourceAtom, ({ a }: A) => a, NeverSet);
   const derivedSubscriber = (_nextValue: string, _prevValue: string) => {};
-  const mockFn = mock(derivedSubscriber);
+  const mockFn = jest.fn(derivedSubscriber);
   expect(derivedAtom.get()).toBe("1");
   derivedAtom.sub(mockFn);
   sourceAtom.set({ a: "2" });
@@ -30,7 +29,7 @@ test("derive", () => {
   );
 
   const derivedSubscriber = (_nextValue: number, _prevValue: number) => {};
-  const mockFn = mock(derivedSubscriber);
+  const mockFn = jest.fn(derivedSubscriber);
   expect(seeAtom.get()).toBe(11);
   seeAtom.sub(mockFn);
   aAtom.set({ a: "another string" });

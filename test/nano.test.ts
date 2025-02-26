@@ -1,4 +1,3 @@
-import { expect, mock, test } from "bun:test";
 import { nano } from "../src/nanoState";
 
 test("get", () => {
@@ -22,7 +21,7 @@ test("set two times", () => {
 test("sub", () => {
   const numAtom = nano(2);
   const fn = (_nextValue: number) => {};
-  const mockFn = mock(fn);
+  const mockFn = jest.fn(fn);
   numAtom.sub(mockFn);
   numAtom.set(3);
   expect(mockFn).toHaveBeenCalled();

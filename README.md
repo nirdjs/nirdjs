@@ -205,7 +205,7 @@ const WordAndLetters = () => {
 
 
 ```jsx
-import { expect, mock, test } from "bun:test";
+import { expect, mock, test } from "@jest/globals";
 import { splitAtom } from "../src/arrays";
 import { atom, type Atom } from "../src/Nird";
 
@@ -217,9 +217,9 @@ test("atomList does not change when single value changes", () => {
   const atom1: Atom<number> = splitArrayAtom.get()[1];
 
   const nopFn = () => { }
-  const subAtomMock = mock(nopFn as any)
-  const sub0 = mock(nopFn as any)
-  const sub1 = mock(nopFn as any)
+  const subAtomMock = jest.fn(nopFn as any)
+  const sub0 = jest.fn(nopFn as any)
+  const sub1 = jest.fn(nopFn as any)
 
   /// test
 

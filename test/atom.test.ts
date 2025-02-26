@@ -1,4 +1,3 @@
-import { expect, mock, test } from "bun:test";
 import { atom, batch } from "../src/atom";
 
 test("get", () => {
@@ -13,7 +12,7 @@ test("atom.toString", () => {
   const bAtomStr = bAtom.toString();
   expect(aAtom.toString()).toMatch(/atom:[0-9]+: \[2\]/);
   expect(bAtom.toString()).toMatch(/atom:[0-9]+: \[2\]/);
-  expect(aAtomStr === bAtomStr).toBeFalse();
+  expect(aAtomStr === bAtomStr).toBeFalsy();
 });
 
 test("set one time", () => {
@@ -32,7 +31,7 @@ test("set two times", () => {
 test("sub", () => {
   const numAtom = atom(2);
   const fn = (_nextValue: number, _prevValue: number) => {};
-  const mockFn = mock(fn);
+  const mockFn = jest.fn(fn);
   numAtom.sub(mockFn);
   numAtom.set(3);
   expect(mockFn).toHaveBeenCalled();

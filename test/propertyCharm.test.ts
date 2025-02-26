@@ -1,4 +1,3 @@
-import { expect, mock, test } from "bun:test";
 import { atom } from "../src/atom";
 import { propertyAtom } from "../src/propertyAtom";
 
@@ -13,8 +12,8 @@ test("propertyAtom", () => {
   const fn1 = (_nextValue: number, _prevValue: number) => {
     throw new Error();
   };
-  const mockFn0 = mock(fn0);
-  const mockFn1 = mock(fn1);
+  const mockFn0 = jest.fn(fn0);
+  const mockFn1 = jest.fn(fn1);
   elt0.sub(mockFn0);
   elt1.sub(mockFn1);
 

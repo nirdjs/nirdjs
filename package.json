@@ -22,10 +22,11 @@
   },
   "scripts": {
     "tsup": "npx tsup --dts --format esm,cjs,iife src/index.ts ",
-    "up": "bun upgrade ; bun update --force ; bun run build ",
+    "up": "npm upgrade ; npm update --force ; npm run build ",
     "format": "npx --trace-deprecation @biomejs/biome format --write ./src/ ./test/",
-    "test": "bun test --watch",
+    "test": "jest",
     "build": "npm run tsup",
+    "watch": " jest --watch",
     "publish": "npm run tsup ; npm publish",
     "deno:publish": "deno publish --unstable-sloppy-imports --allow-dirty",
     "deno:prepare": "deno publish --unstable-sloppy-imports --allow-dirty --dry-run",
@@ -37,14 +38,13 @@
   },
   "devDependencies": {
     "@happy-dom/global-registrator": "^15.11.6",
-    "@types/bun": "^1.1.13",
-    "@types/node": "^22.9.3",
+    "@microsoft/api-extractor": "^7.48.0",
+    "@types/jest": "^29.5.14",
     "biome": "^0.3.3",
+    "jest": "^29.7.0",
     "npm-run-all": "^4.1.5",
-    "@types/react": "^18.3.12",
     "react": "^18.3.1",
     "tsup": "^8.3.5",
-    "@microsoft/api-extractor": "^7.48.0",
     "typescript": "^5.7.2"
   },
   "peerDependencies": {

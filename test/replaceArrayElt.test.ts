@@ -1,4 +1,3 @@
-import { expect, test } from "bun:test";
 import { replaceArrayElt } from "../src/langUtils";
 
 test("replaceEltArray", () => {
