@@ -40,11 +40,32 @@ test("sub", () => {
   expect(mockFn.mock.calls[0]).toEqual([3, 2]);
 });
 
-test("batch does not run immediately", () => {
+test("batch defers notifications until the end", () => {
   const numAtom = atom(2);
+  const subscriber = mock((_next: number, _prev: number) => {});
+  numAtom.sub(subscriber);
+
   batch(() => {
     numAtom.set(3);
+    numAtom.set(4);
+    expect(subscriber).toHaveBeenCalledTimes(0); // Should not be called yet
   });
 
-  expect(numAtom.get()).toBe(3);
+  expect(subscriber).toHaveBeenCalledTimes(2); // Should be called twice (deferred) after batch
+  expect(numAtom.get()).toBe(4);
+  expect(subscriber.mock.calls[0]).toEqual([3, 2]); // First notification in the batch was 3
+  expect(subscriber.mock.calls[1]).toEqual([4, 3]); // Second notification in the batch was 4
+});
+
+test("batch is synchronous", () => {
+  const numAtom = atom(10);
+  let finished = false;
+
+  batch(() => {
+    numAtom.set(20);
+  });
+  finished = true;
+
+  expect(finished).toBe(true);
+  expect(numAtom.get()).toBe(20);
 });

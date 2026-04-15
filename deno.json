@@ -1,6 +1,6 @@
 {
   "name": "@nirdjs/nirdjs",
-  "version": "0.1.31",
+  "version": "0.1.32",
   "description": "Atomic state management library for React",
   "exports": "./src/index.ts",
   "publish": {
@@ -16,8 +16,8 @@
     ]
   },
   "imports": {
-    "react": "npm:react@^18.3.1",
-    "react-dom": "npm:react-dom@^18.3.1"
+    "react": "npm:react@^19.0.0",
+    "react-dom": "npm:react-dom@^19.0.0"
   },
   "repository": {
     "type": "git",

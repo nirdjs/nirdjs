@@ -211,20 +211,20 @@ export const atom = <Value>(
 };
 
 /**
- * Performs atom transation. Internally:
+ * Performs atom transaction. Internally:
  * 1) starts postponing all atom notifications
- * 2) calls await @param fn()
+ * 2) calls @param fn()
  * 3) performs all postponed notifications
  */
-export const batch = async (fn: () => void): Promise<void> => {
+export const batch = (fn: () => void): void => {
   if (batching) {
     throw new Error("Another batching is already in the progress");
   }
   try {
     batching = [];
-    await fn();
+    fn();
     for (const notification of batching) {
-      await notification();
+      notification();
     }
   } finally {
     batching = undefined;

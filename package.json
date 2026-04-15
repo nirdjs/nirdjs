@@ -22,37 +22,35 @@
     "./package.json": "./package.json"
   },
   "scripts": {
-    "tsup": "bunx tsup --dts --format esm,cjs,iife src/index.ts ",
+    "build": "tsup src/index.ts --dts --format esm,cjs,iife --clean",
+    "test": "bun test && npm run test.modules",
     "test:watch": "bun test --watch",
-    "test.cjs": "cd ./test-module-imports/test-cjs/ && npm run test && cd ../../",
-    "test.esm": "cd ./test-module-imports/test-esm/ && npm run test && cd ../../",
-    "test.modules": "npm link; npm run test.cjs && npm run test.esm",
-    "test": "bun test && npm run build && npm run test.modules ",
-    "build": "bun run tsup",
-    "publish": "bun run tsup && bun publish",
-    "format": "bunx prettier --write ./src/ ./test/",
-    "lint": "bunx prettier --check ./src ./test",
-    
-    "up": "bun upgrade && bun update --force && bun run build ",
+    "test.cjs": "cd ./test-module-imports/test-cjs/ && npm run test",
+    "test.esm": "cd ./test-module-imports/test-esm/ && npm run test",
+    "test.modules": "npm run build && npm run test.cjs && npm run test.esm",
+    "format": "prettier --write ./src/ ./test/",
+    "lint": "prettier --check ./src ./test",
+    "clean": "rm -rf dist",
+    "up": "bun upgrade && bun update --force && npm run build",
     "deno:publish": "deno publish --unstable-sloppy-imports --allow-dirty",
     "deno:prepare": "deno publish --unstable-sloppy-imports --allow-dirty --dry-run"
   },
   "devDependencies": {
     "@happy-dom/global-registrator": "^15.11.7",
-    "@microsoft/api-extractor": "^7.50.1",
-    "@types/bun": "^1.2.3",
-    "@types/node": "^22.13.5",
-    "@types/react": "^18.3.18",
+    "@microsoft/api-extractor": "^7.58.2",
+    "@types/bun": "^1.3.12",
+    "@types/node": "^22.19.17",
+    "@types/react": "^19.2.14",
     "npm-run-all": "^4.1.5",
-    "prettier": "3.5.2",
-    "react": "^18.3.1",
+    "prettier": "^3.8.3",
+    "react": "^19.2.5",
     "tsup": "^8.4.0",
-    "typescript": "^5.7.3"
+    "typescript": "^6.0.2"
   },
   "peerDependencies": {
-    "@types/react-dom": "^18.3.0",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "@types/react-dom": "^19.0.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
   },
   "license": "Apache-2.0",
   "author": "Dima Kaigorodov",

@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import type { Atom, Subscriber } from "./atom";
+import { useSyncExternalStore } from "react";
+import type { Atom } from "./atom";
 
 /**
  * The usual React hook to get atom value and subscribes the caller Component.
@@ -10,18 +10,12 @@ import type { Atom, Subscriber } from "./atom";
  * @returns current value of the @param atom, on every render
  */
 export const useValue = <Value>(atom: Atom<Value>): Value => {
-  const [value, setValue] = useState(atom.get());
-
-  useEffect(() => {
-    const subscriber: Subscriber<Value> = (
-      nextValue: Value,
-      _prevValue: Value,
-    ) => {
-      setValue(nextValue);
-    };
-    atom.sub(subscriber);
-    return () => atom.unsub(subscriber);
-  });
-
-  return value;
+  return useSyncExternalStore(
+    (onStoreChange) => {
+      atom.sub(onStoreChange);
+      return () => atom.unsub(onStoreChange);
+    },
+    () => atom.get(),
+    () => atom.get(), // Server snapshot
+  );
 };
