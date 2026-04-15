@@ -1,7 +1,7 @@
 {
   "name": "nirdjs",
   "type": "module",
-  "version": "0.1.33",
+  "version": "0.1.38",
   "description": "An atomic state management library for React",
   "source": "./index.ts",
   "main": "./dist/index.cjs",
@@ -29,7 +29,6 @@
     "publish": "bun run tsup && bun publish",
     "format": "bunx prettier --write ./src/ ./test/",
     "lint": "bunx prettier --check ./src ./test",
-    
     "up": "bun upgrade && bun update --force && bun run build ",
     "deno:publish": "deno publish --unstable-sloppy-imports --allow-dirty",
     "deno:prepare": "deno publish --unstable-sloppy-imports --allow-dirty --dry-run"
