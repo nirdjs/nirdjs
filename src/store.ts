@@ -1,14 +1,5 @@
 let storeSeq = 0;
 
-const createAtomStoreClosure = (storeSeq: number): AtomStore => {
-  return {
-    getStoreId() {
-      return storeSeq;
-    },
-    atom2value: new Map<number, unknown>(),
-  };
-};
-
 /**
  * Type of AtomStore
  */
@@ -22,6 +13,14 @@ export type AtomStore = {
    * Map which binds atomId to the value of the Atom in the Store
    */
   atom2value: Map<number, unknown>;
+  /**
+   * @internal
+   */
+  batching?: Array<() => void>;
+  /**
+   * @internal
+   */
+  batchDepth: number;
 };
 
 /**
@@ -29,6 +28,16 @@ export type AtomStore = {
  */
 export const createAtomStore = (): AtomStore => {
   return createAtomStoreClosure(storeSeq++);
+};
+
+const createAtomStoreClosure = (storeSeq: number): AtomStore => {
+  return {
+    getStoreId() {
+      return storeSeq;
+    },
+    atom2value: new Map<number, unknown>(),
+    batchDepth: 0,
+  };
 };
 
 let defaultStore: undefined | AtomStore = createAtomStore();
@@ -70,7 +79,13 @@ let storeProvider = (): AtomStore => defaultStore as AtomStore;
  * @returns calls {@link storeProvider} function to create or use existing Store.
  */
 export const getStore = (): AtomStore => {
-  return storeProvider();
+  const store = storeProvider();
+  if (!store) {
+    throw new Error(
+      "No AtomStore is currently active. Use getDefaultStore() or set up a store provider.",
+    );
+  }
+  return store;
 };
 
 /**

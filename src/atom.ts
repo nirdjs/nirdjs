@@ -22,7 +22,7 @@ export type IgnoreWhenFn<Value> = (
   nextValue: Value,
 ) => boolean;
 
-let batching: Array<() => void> | undefined = undefined;
+
 
 /**
  * The configuration of a atom.
@@ -123,6 +123,11 @@ export type Atom<Value> = {
    */
   unsub: (subscriber: Subscriber<Value>) => void;
   /**
+   * @returns number of current subscribers
+   * @internal
+   */
+  subCount: () => number;
+  /**
    * return unique string representation of this atom and it's state
    */
   toString: () => string;
@@ -152,17 +157,16 @@ export const atom = <Value>(
   };
   const notify = (nextValue: Value, prevValue: Value) => {
     if (config?.ignoreWhen?.(nextValue, prevValue)) {
-      // console.log("notify skip ", { nextValue, prevValue })
       return;
     }
-    // console.log("notify fire ", { nextValue, prevValue })
 
-    if (batching === undefined) {
+    const store = getStore();
+    if (store.batching === undefined) {
       notifyNow(nextValue, prevValue);
       return;
     }
 
-    batching.push(() => {
+    store.batching.push(() => {
       notifyNow(nextValue, prevValue);
     });
   };
@@ -201,6 +205,9 @@ export const atom = <Value>(
       }
       subscribers.delete(subscriber);
     },
+    subCount() {
+      return subscribers.size;
+    },
     toString() {
       return `${config.debugLabel}:${atomId}: [${this.get()}]`;
     },
@@ -211,8 +218,6 @@ export const atom = <Value>(
   return atom;
 };
 
-let batchDepth = 0;
-
 /**
  * Performs atom transation. Internally:
  * 1) starts postponing all atom notifications
@@ -222,17 +227,18 @@ let batchDepth = 0;
 export const batch = async (
   fn: () => void | Promise<void>,
 ): Promise<void> => {
+  const store = getStore();
   try {
-    if (batching === undefined) {
-      batching = [];
+    if (store.batching === undefined) {
+      store.batching = [];
     }
-    batchDepth++;
+    store.batchDepth++;
     await fn();
   } finally {
-    batchDepth--;
-    if (batchDepth === 0 && batching) {
-      const notifications = batching;
-      batching = undefined;
+    store.batchDepth--;
+    if (store.batchDepth === 0 && store.batching) {
+      const notifications = store.batching;
+      store.batching = undefined;
       for (const notification of notifications) {
         notification();
       }

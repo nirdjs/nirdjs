@@ -28,14 +28,31 @@ export const derive = <SourceValue, DerivedValue>(
   atomConfig?: AtomConfig<DerivedValue>,
 ): Atom<DerivedValue> => {
   const innerAtom = atom(deriveFromSource(sourceAtom.get()), atomConfig);
-  sourceAtom.sub((nextSourceValue: SourceValue) => {
+
+  const onSourceChange = (nextSourceValue: SourceValue) => {
     innerAtom.set(deriveFromSource(nextSourceValue));
-  });
+  };
 
   return {
     ...innerAtom,
     get() {
+      // Ensure we have current value even if not subscribed
+      if (innerAtom.subCount() === 0) {
+        innerAtom.set(deriveFromSource(sourceAtom.get()));
+      }
       return innerAtom.get();
+    },
+    sub(subscriber) {
+      if (innerAtom.subCount() === 0) {
+        sourceAtom.sub(onSourceChange);
+      }
+      innerAtom.sub(subscriber);
+    },
+    unsub(subscriber) {
+      innerAtom.unsub(subscriber);
+      if (innerAtom.subCount() === 0) {
+        sourceAtom.unsub(onSourceChange);
+      }
     },
     set(nextValue: DerivedValue) {
       const nextSourceValue = propagateToSource(nextValue, sourceAtom.get());

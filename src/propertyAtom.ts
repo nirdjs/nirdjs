@@ -18,10 +18,17 @@ export const propertyAtom = <Value, prop extends keyof Value>(
   return derive<Value, Value[prop]>(
     sourceAtom,
     (sourceValue: Value) => sourceValue[propName],
-    (nextPropValue: Value[prop], sourceValue) => ({
-      ...sourceValue,
-      [propName]: nextPropValue,
-    }),
+    (nextPropValue: Value[prop], sourceValue) => {
+      if (Array.isArray(sourceValue)) {
+        const nextSource = [...sourceValue];
+        nextSource[propName as any] = nextPropValue;
+        return nextSource as unknown as Value;
+      }
+      return {
+        ...sourceValue,
+        [propName]: nextPropValue,
+      };
+    },
     config,
   );
 };
