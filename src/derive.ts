@@ -39,7 +39,6 @@ export const derive = <SourceValue, DerivedValue>(
     },
     set(nextValue: DerivedValue) {
       const nextSourceValue = propagateToSource(nextValue, sourceAtom.get());
-      innerAtom.set(nextValue);
       sourceAtom.set(nextSourceValue);
     },
   };
