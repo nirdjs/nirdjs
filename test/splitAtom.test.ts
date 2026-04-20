@@ -28,3 +28,33 @@ test("atomList does not change when single value changes", () => {
 
   expect(subAtomMock).toHaveBeenCalledTimes(0);
 });
+
+test("splitAtom handles array length changes correctly", () => {
+  const source = atom([1, 2]);
+  const split = splitAtom(source);
+  expect(split.get().length).toBe(2);
+
+  // Add an item to source
+  source.set([1, 2, 3]);
+  expect(split.get().length).toBe(3);
+
+  // Remove items
+  source.set([1]);
+  expect(split.get().length).toBe(1);
+});
+
+test("splitAtom stability: should not notify if list content hasn't changed", () => {
+  const source = atom([1, 2]);
+  const split = splitAtom(source);
+  const subscriber = mock(() => {});
+  split.sub(subscriber);
+
+  // Update a value via one of the child atoms
+  const child0 = split.get()[0];
+  child0.set(100);
+
+  // The source atom should be updated
+  expect(source.get()[0]).toBe(100);
+  // The split atom itself should NOT have notified because the array of atoms is identical
+  expect(subscriber).toHaveBeenCalledTimes(0);
+});

@@ -27,7 +27,7 @@ export const useNano = <T>(n: ReturnType<typeof nano<T>>): T => {
     return () => {
       n.unsub(setValue);
     };
-  });
+  }, [n]);
 
   return value;
 };

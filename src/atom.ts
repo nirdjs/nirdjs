@@ -176,8 +176,9 @@ export const atom = <Value>(
     },
     set(nextValue: Value) {
       if (!config.allowFnValue && typeof nextValue === "function") {
-        console.trace("atom set fn", config.debugLabel, nextValue);
-        return;
+        throw new Error(
+          `atom.set(fn) is not allowed by default. Use atom(value, { allowFnValue: true }) or pass a non-function value. Provided: ${nextValue}`,
+        );
       }
       const prevValue = this.get();
       setStoreAtomValue(this, nextValue);
@@ -196,7 +197,7 @@ export const atom = <Value>(
     },
     unsub(subscriber: Subscriber<Value>) {
       if (!subscriber || typeof subscriber !== "function") {
-        throw new Error(`Couldn't add atom sub: ${subscriber}`);
+        throw new Error(`Couldn't remove atom sub: ${subscriber}`);
       }
       subscribers.delete(subscriber);
     },
@@ -210,23 +211,31 @@ export const atom = <Value>(
   return atom;
 };
 
+let batchDepth = 0;
+
 /**
  * Performs atom transation. Internally:
  * 1) starts postponing all atom notifications
  * 2) calls await @param fn()
  * 3) performs all postponed notifications
  */
-export const batch = async (fn: () => void): Promise<void> => {
-  if (batching) {
-    throw new Error("Another batching is already in the progress");
-  }
+export const batch = async (
+  fn: () => void | Promise<void>,
+): Promise<void> => {
   try {
-    batching = [];
-    await fn();
-    for (const notification of batching) {
-      await notification();
+    if (batching === undefined) {
+      batching = [];
     }
+    batchDepth++;
+    await fn();
   } finally {
-    batching = undefined;
+    batchDepth--;
+    if (batchDepth === 0 && batching) {
+      const notifications = batching;
+      batching = undefined;
+      for (const notification of notifications) {
+        notification();
+      }
+    }
   }
 };

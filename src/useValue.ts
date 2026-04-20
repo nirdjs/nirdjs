@@ -21,7 +21,7 @@ export const useValue = <Value>(atom: Atom<Value>): Value => {
     };
     atom.sub(subscriber);
     return () => atom.unsub(subscriber);
-  });
+  }, [atom]);
 
   return value;
 };

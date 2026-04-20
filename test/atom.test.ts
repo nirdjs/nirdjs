@@ -48,3 +48,37 @@ test("batch does not run immediately", () => {
 
   expect(numAtom.get()).toBe(3);
 });
+
+test("nested batch calls are allowed", async () => {
+  const a = atom(0);
+  const subscriber = mock(() => {});
+  a.sub(subscriber);
+
+  await batch(async () => {
+    await batch(async () => {
+      a.set(1);
+    });
+    expect(subscriber).toHaveBeenCalledTimes(0);
+    a.set(2);
+  });
+
+  expect(subscriber).toHaveBeenCalledTimes(2);
+  expect(a.get()).toBe(2);
+});
+
+test("unsub error message verb is correct", () => {
+  const a = atom(0);
+  try {
+    a.unsub(null as any);
+    expect.unreachable();
+  } catch (e: any) {
+    expect(e.message).toContain("Couldn't remove");
+  }
+});
+
+test("allowFnValue throws instead of silent failure", () => {
+  const a = atom<any>(0);
+  expect(() => {
+    a.set(() => "new value");
+  }).toThrow("atom.set(fn) is not allowed by default");
+});

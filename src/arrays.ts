@@ -57,19 +57,40 @@ export const splitAtom = <Value>(
   itemsConfig?: AtomConfig<Value>,
   containerConfig?: AtomConfig<Array<Atom<Value>>>,
 ): Atom<Array<Atom<Value>>> => {
-  const arrayOfAtoms = new Array<Atom<Value>>();
-  const valueArray = source.get();
-  const atomOfArrayToArrayOfAtoms = () => {
-    for (let index = 0; index < valueArray.length; index++) {
-      const derived = arrayEltAtom<Value>(source, index, itemsConfig);
-      arrayOfAtoms.push(derived);
-    }
-    return arrayOfAtoms;
-  };
+  const atomCache = new Map<number, Atom<Value>>();
+  let lastResult: Array<Atom<Value>> = [];
 
   return derive<Array<Value>, Array<Atom<Value>>>(
     source,
-    atomOfArrayToArrayOfAtoms,
+    (valueArray) => {
+      let changed = lastResult.length !== valueArray.length;
+      const result = new Array<Atom<Value>>(valueArray.length);
+      for (let index = 0; index < valueArray.length; index++) {
+        let derived = atomCache.get(index);
+        if (!derived) {
+          derived = arrayEltAtom<Value>(source, index, itemsConfig);
+          atomCache.set(index, derived);
+          changed = true;
+        }
+        result[index] = derived;
+      }
+      // Trim cache if source array shrank
+      if (atomCache.size > valueArray.length) {
+        changed = true;
+        for (const key of atomCache.keys()) {
+          if (key >= valueArray.length) {
+            atomCache.delete(key);
+          }
+        }
+      }
+
+      if (!changed) {
+        return lastResult;
+      }
+
+      lastResult = result;
+      return result;
+    },
     NeverSet,
     containerConfig,
   );
