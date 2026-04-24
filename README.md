@@ -1,4 +1,8 @@
-# nirdjs
+<p align="center">
+  <img src="assets/nirdjs-512.png" width="128" alt="NirdJs Logo" />
+</p>
+
+# NirdJs
 
 Atomic state management for React — tiny, fast, SSR-ready.
 

@@ -64,12 +64,10 @@
     "atom",
     "atomic",
     "react",
-    "charm",
-    "charmjs",
     "zustand",
     "store"
   ],
-  "homepage": "https://npmjs.com/nirdjs",
+  "homepage": "https://github.com/nirdjs/nirdjs",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/nirdjs/nirdjs.git"
