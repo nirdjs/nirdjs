@@ -1,6 +1,3 @@
-import { atom } from "./atom";
-import { useValue } from "./useValue";
-
 export type NoAttributesType = {};
 
 export const replaceArrayElt = <Value>(
@@ -12,8 +9,3 @@ export const replaceArrayElt = <Value>(
   nextValue,
   ...array.slice(index + 1),
 ];
-
-const snap = <Value>(value: Value) => {
-  const a = atom(value);
-  return [() => useValue(a), a.update, a.get, a.sub, a.unsub, a.set] as const;
-};

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 
 export const nano = <T>(i: T) => {
   let v = i;
-  const subs = new Array<(n: T) => void>();
+  const subs = new Set<(n: T) => void>();
 
   return {
     get: () => v,
@@ -14,8 +14,8 @@ export const nano = <T>(i: T) => {
         }
       }
     },
-    sub: (s: (n: T) => void) => subs.push(s),
-    unsub: (s: (n: T) => void) => subs.splice(subs.indexOf(s), 1),
+    sub: (s: (n: T) => void) => subs.add(s),
+    unsub: (s: (n: T) => void) => subs.delete(s),
   };
 };
 

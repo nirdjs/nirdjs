@@ -9,7 +9,7 @@ import { replaceArrayElt } from "./langUtils";
  * @param source Atom which holds array
  * @param index of an element
  * @param config optional @see {@link AtomConfig}
- * @returns new Atom linked to element of arrary by index.
+ * @returns new Atom linked to element of array by index.
  */
 export const arrayEltAtom = <Value>(
   source: Atom<Array<Value>>,

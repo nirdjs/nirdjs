@@ -14,7 +14,7 @@ export const atomGetter = <Value>(atom: Atom<Value>): AtomGetter<Value> => {
 /**
  * Extracts @param value of source atom to the value of derived atom
  *
- * @see {@link } and @see {@link arrayEltAtom} for usage examples.
+ * @see {@link derive} and @see {@link arrayEltAtom} for usage examples.
  */
 export type GetFromSourceFn<SourceValue, DerivedValue> = (
   value: SourceValue,

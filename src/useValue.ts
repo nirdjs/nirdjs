@@ -13,6 +13,9 @@ export const useValue = <Value>(atom: Atom<Value>): Value => {
   const [value, setValue] = useState(atom.get());
 
   useEffect(() => {
+    // Sync with the new atom's current value immediately on resubscribe
+    setValue(atom.get());
+
     const subscriber: Subscriber<Value> = (
       nextValue: Value,
       _prevValue: Value,

@@ -50,7 +50,7 @@ test("batch — should postpone notifications until the end", async () => {
 
 test("batch — should allow nested batch calls", async () => {
   const a = atom(0);
-  const subscriber = mock(() => {});
+  const subscriber = mock((_next: number, _prev: number) => {});
   a.sub(subscriber);
 
   await batch(async () => {
@@ -61,7 +61,9 @@ test("batch — should allow nested batch calls", async () => {
     a.set(2);
   });
 
-  expect(subscriber).toHaveBeenCalledTimes(2);
+  // Deduplicated: only the final value pair fires
+  expect(subscriber).toHaveBeenCalledTimes(1);
+  expect(subscriber.mock.calls[0]).toEqual([2, 1]);
   expect(a.get()).toBe(2);
 });
 
@@ -108,4 +110,72 @@ test("unsub — should throw with correct verb in message", () => {
 test("safety — should throw when setting function without allowFnValue", () => {
   const a = atom<any>(0);
   expect(() => a.set(() => {})).toThrow("atom.set(fn) is not allowed by default");
+});
+
+test("safety — allowFnValue opt-in should permit storing functions", () => {
+  const fn1 = () => "hello";
+  const fn2 = () => "world";
+  const a = atom<() => string>(fn1, { allowFnValue: true });
+  expect(a.get()).toBe(fn1);
+  expect(a.get()()).toBe("hello");
+
+  a.set(fn2);
+  expect(a.get()).toBe(fn2);
+  expect(a.get()()).toBe("world");
+});
+
+test("construction — should not notify subscribers during initialization", () => {
+  const ignoreWhen = mock((prev: number, next: number) => prev === next);
+  const subscriber = mock(() => {});
+
+  const a = atom(42, { ignoreWhen });
+  a.sub(subscriber);
+
+  // ignoreWhen should never have been called during construction
+  expect(ignoreWhen).toHaveBeenCalledTimes(0);
+  // subscriber should not have been called during construction
+  expect(subscriber).toHaveBeenCalledTimes(0);
+  // value should still be correctly seeded
+  expect(a.get()).toBe(42);
+});
+
+test("batch — should deduplicate multiple sets to the same atom", async () => {
+  const a = atom(0);
+  const subscriber = mock((_next: number, _prev: number) => {});
+  a.sub(subscriber);
+
+  await batch(() => {
+    a.set(1);
+    a.set(2);
+    a.set(3);
+    a.set(4);
+    a.set(5);
+  });
+
+  // Only one notification should fire, with the final value
+  expect(subscriber).toHaveBeenCalledTimes(1);
+  expect(subscriber.mock.calls[0][0]).toBe(5); // nextValue
+  expect(a.get()).toBe(5);
+});
+
+test("batch — should notify each distinct atom exactly once", async () => {
+  const a = atom(0);
+  const b = atom("x");
+  const subA = mock((_next: number, _prev: number) => {});
+  const subB = mock((_next: string, _prev: string) => {});
+  a.sub(subA);
+  b.sub(subB);
+
+  await batch(() => {
+    a.set(1);
+    b.set("y");
+    a.set(2);
+    b.set("z");
+  });
+
+  // Each atom notified exactly once with its final value
+  expect(subA).toHaveBeenCalledTimes(1);
+  expect(subA.mock.calls[0][0]).toBe(2);
+  expect(subB).toHaveBeenCalledTimes(1);
+  expect(subB.mock.calls[0][0]).toBe("z");
 });

@@ -9,6 +9,7 @@ import {
   createAtomStore,
   disableDefaultStore,
   getDefaultStore,
+  getStore,
   setStoreProvider,
 } from "../src/store";
 import { useValue } from "../src/useValue";
@@ -41,5 +42,22 @@ test("render two pages at the same time", () => {
   setStoreProvider(() => savedDefaultStore);
 });
 
-// FIXME test disableDefaultStore
+test("disableDefaultStore — default provider should throw after disable", () => {
+  // defaultStore was already disabled by the previous test.
+  // Verify that a provider routed through getDefaultStore() throws.
+  expect(() => getDefaultStore()).toThrow(
+    "default store was disable",
+  );
+
+  // Verify that getStore() also throws when pointed at the default provider
+  setStoreProvider(() => getDefaultStore());
+  expect(() => {
+    getStore();
+  }).toThrow("default store was disable");
+
+  // Restore a working provider so subsequent tests aren't affected
+  const freshStore = createAtomStore();
+  setStoreProvider(() => freshStore);
+});
+
 // FIXME test with async

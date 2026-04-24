@@ -16,7 +16,7 @@ export type AtomStore = {
   /**
    * @internal
    */
-  batching?: Array<() => void>;
+  batching?: Map<number, () => void>;
   /**
    * @internal
    */
@@ -70,7 +70,7 @@ export const disableDefaultStore = (): void => {
   defaultStore = undefined;
 };
 
-let storeProvider = (): AtomStore => defaultStore as AtomStore;
+let storeProvider = (): AtomStore => getDefaultStore();
 
 /**
  * Returns new or existing Store. As an application developer, you don't have to use it.

@@ -3,7 +3,7 @@ import { derive } from "./derive";
 
 /**
  * Utility function which creates new derived atom.
- * This new atom represent a single property of the @pararm sourceAtom
+ * This new atom represent a single property of the @param sourceAtom
  *
  * @param sourceAtom source atom to derive from
  * @param propName name of the property

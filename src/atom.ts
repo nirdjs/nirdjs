@@ -5,7 +5,7 @@ export type Subscriber<Value> = (nextValue: Value, prevValue: Value) => void;
 let atomCounter = 0;
 
 /**
- * Updater function. get @param @prev previous @param Value and return next value
+ * Updater function. Gets the previous value and returns the next value.
  * @see {@link Atom.update}
  */
 export type UpdateFn<Value> = (prev: Value) => Value;
@@ -34,13 +34,20 @@ export type AtomConfig<Value> = {
    * This way you can avoid unnecessary recalculations and re-render of the UI.
    *
    * defaults to @see {@link isIdentical}.
-   * For better performance, when your state is not weird, provide with deepEquals implementation.
+   * For better performance, when your state is not weird, provide a deepEquals implementation.
    */
   ignoreWhen?: IgnoreWhenFn<Value>;
   /**
    * Debug label of this atom
    */
   debugLabel?: string;
+  /**
+   * Allow setting a function as a value (e.g., `atom.set(myFn)`).
+   * By default, passing a function to `set()` throws to prevent
+   * accidental `atom.set(updater)` instead of `atom.update(updater)`.
+   * @default false
+   */
+  allowFnValue?: boolean;
 };
 
 /**
@@ -55,7 +62,7 @@ export const isIdentical = <Value>(a: Value, b: Value): boolean =>
 
 /**
  * Can be used as @see {@link AtomConfig.ignoreWhen} value.
- * Will cause atom to always notify subscriber even when the value has not bee not changed.
+ * Will cause atom to always notify subscriber even when the value has not changed.
  */
 export const neverIgnore = undefined;
 
@@ -166,7 +173,7 @@ export const atom = <Value>(
       return;
     }
 
-    store.batching.push(() => {
+    store.batching.set(atomId, () => {
       notifyNow(nextValue, prevValue);
     });
   };
@@ -213,16 +220,17 @@ export const atom = <Value>(
     },
   };
 
-  atom.set(initialValue);
+  // Seed initial value directly without triggering notify
+  setStoreAtomValue(atom, initialValue);
 
   return atom;
 };
 
 /**
- * Performs atom transation. Internally:
+ * Performs atom transaction (batching). Internally:
  * 1) starts postponing all atom notifications
  * 2) calls await @param fn()
- * 3) performs all postponed notifications
+ * 3) performs all postponed notifications (deduplicated per atom)
  */
 export const batch = async (
   fn: () => void | Promise<void>,
@@ -230,7 +238,7 @@ export const batch = async (
   const store = getStore();
   try {
     if (store.batching === undefined) {
-      store.batching = [];
+      store.batching = new Map();
     }
     store.batchDepth++;
     await fn();
@@ -239,7 +247,7 @@ export const batch = async (
     if (store.batchDepth === 0 && store.batching) {
       const notifications = store.batching;
       store.batching = undefined;
-      for (const notification of notifications) {
+      for (const notification of notifications.values()) {
         notification();
       }
     }
