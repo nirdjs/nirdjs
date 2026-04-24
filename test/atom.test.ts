@@ -179,3 +179,18 @@ test("batch — should notify each distinct atom exactly once", async () => {
   expect(subB).toHaveBeenCalledTimes(1);
   expect(subB.mock.calls[0][0]).toBe("z");
 });
+
+test("reset — should restore atom to its initial value", () => {
+  const a = atom(42);
+  const subscriber = mock((_next: number, _prev: number) => {});
+  a.sub(subscriber);
+
+  a.set(100);
+  expect(a.get()).toBe(100);
+  expect(subscriber).toHaveBeenCalledTimes(1);
+
+  a.reset();
+  expect(a.get()).toBe(42);
+  expect(subscriber).toHaveBeenCalledTimes(2);
+  expect(subscriber.mock.calls[1]).toEqual([42, 100]);
+});

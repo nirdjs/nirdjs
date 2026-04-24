@@ -1,7 +1,7 @@
 {
   "name": "nirdjs",
   "type": "module",
-  "version": "0.1.39",
+  "version": "0.1.40",
   "description": "An atomic state management library for React",
   "source": "./index.ts",
   "main": "./dist/index.cjs",

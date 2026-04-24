@@ -135,6 +135,10 @@ export type Atom<Value> = {
    */
   subCount: () => number;
   /**
+   * Reset the atom to its initial value.
+   */
+  reset: () => void;
+  /**
    * return unique string representation of this atom and it's state
    */
   toString: () => string;
@@ -214,6 +218,9 @@ export const atom = <Value>(
     },
     subCount() {
       return subscribers.size;
+    },
+    reset() {
+      this.set(initialValue);
     },
     toString() {
       return `${config.debugLabel}:${atomId}: [${this.get()}]`;
