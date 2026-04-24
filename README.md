@@ -1,342 +1,199 @@
-<p align="center">
-  <h1 align="center">nirdjs</h1>
-  <p align="center">
-    Atomic state management for React — tiny, fast, SSR-ready.
-  </p>
-  <p align="center">
-    <a href="https://www.npmjs.com/package/nirdjs"><img src="https://img.shields.io/npm/v/nirdjs.svg?style=flat-square&color=blue" alt="npm version" /></a>
-    <a href="https://www.npmjs.com/package/nirdjs"><img src="https://img.shields.io/npm/dm/nirdjs.svg?style=flat-square" alt="npm downloads" /></a>
-    <a href="https://bundlephobia.com/package/nirdjs"><img src="https://img.shields.io/bundlephobia/minzip/nirdjs?style=flat-square&label=bundle" alt="bundle size" /></a>
-    <a href="https://github.com/nirdjs/nirdjs/blob/main/LICENSE"><img src="https://img.shields.io/npm/l/nirdjs.svg?style=flat-square" alt="license" /></a>
-  </p>
-</p>
+# nirdjs
 
----
+Atomic state management for React — tiny, fast, SSR-ready.
 
-## Why nirdjs?
-
-| | nirdjs | Redux | Zustand | Jotai |
-|---|---|---|---|---|
-| **Bundle size** | ~2 KB | ~7 KB | ~3 KB | ~8 KB |
-| **Boilerplate** | None | Heavy | Light | Light |
-| **SSR isolation** | Built-in | Manual | Manual | Provider |
-| **Derived state** | `derive()` | Selectors | Middleware | Derived atoms |
-| **Batching** | Deduplicated | Middleware | — | — |
-| **TypeScript** | First-class | Verbose | Good | Good |
-
-**nirdjs** gives you atoms that live _outside_ React. No providers, no context, no reducers. Just declare → use → done.
-
----
-
-## Install
+[![npm](https://img.shields.io/npm/v/nirdjs.svg?style=flat-square&color=blue)](https://www.npmjs.com/package/nirdjs)
+[![bundle](https://img.shields.io/bundlephobia/minzip/nirdjs?style=flat-square&label=bundle)](https://bundlephobia.com/package/nirdjs)
+[![license](https://img.shields.io/npm/l/nirdjs.svg?style=flat-square)](https://github.com/nirdjs/nirdjs/blob/main/LICENSE)
 
 ```sh
 npm install nirdjs
-# or
-bun add nirdjs
-# or
-pnpm add nirdjs
 ```
 
----
+## TODO App Example
 
-## Quick Start
+A complete TODO app in three files.
 
-```tsx
-// counterAtom.ts — define once, import anywhere
-import { atom, useValue } from 'nirdjs';
+### `todoState.ts` — state lives outside React
 
-const counterAtom = atom(0);
+```ts
+import { atom, derive, splitAtom, useValue, NeverSet } from 'nirdjs';
 
-export const useCounter = () => useValue(counterAtom);
-export const inc = () => counterAtom.update(prev => prev + 1);
-export const dec = () => counterAtom.update(prev => prev - 1);
-export const reset = () => counterAtom.reset();
+// types
+type Todo = { text: string; done: boolean };
+
+// atoms
+const todosAtom = atom<Todo[]>([]);
+const todoAtomsAtom = splitAtom(todosAtom);
+const remainingAtom = derive(
+  todosAtom,
+  todos => todos.filter(t => !t.done).length,
+  NeverSet,
+);
+
+// actions — plain functions, call from anywhere
+export const addTodo = (text: string) =>
+  todosAtom.update(prev => [...prev, { text, done: false }]);
+
+export const toggleTodo = (i: number) =>
+  todosAtom.update(prev =>
+    prev.map((t, j) => (j === i ? { ...t, done: !t.done } : t)),
+  );
+
+export const clearDone = () =>
+  todosAtom.update(prev => prev.filter(t => !t.done));
+
+export const resetTodos = () => todosAtom.reset();
+
+// hooks
+export const useTodoAtoms = () => useValue(todoAtomsAtom);
+export const useRemaining = () => useValue(remainingAtom);
 ```
 
-```tsx
-// Counter.tsx
-import { useCounter, inc, dec, reset } from './counterAtom';
+### `TodoItem.tsx` — each item has its own atom
 
-export const Counter = () => {
-  const count = useCounter();
+```tsx
+import { useValue, type Atom } from 'nirdjs';
+import { toggleTodo } from './todoState';
+
+export const TodoItem = ({ atom, index }: { atom: Atom<Todo>; index: number }) => {
+  const todo = useValue(atom);
+
+  return (
+    <li
+      onClick={() => toggleTodo(index)}
+      style={{ textDecoration: todo.done ? 'line-through' : 'none' }}
+    >
+      {todo.text}
+    </li>
+  );
+};
+```
+
+### `App.tsx` — compose it
+
+```tsx
+import { useTodoAtoms, useRemaining, addTodo, clearDone, resetTodos } from './todoState';
+import { TodoItem } from './TodoItem';
+
+export const App = () => {
+  const todoAtoms = useTodoAtoms();
+  const remaining = useRemaining();
 
   return (
     <div>
-      <span>{count}</span>
-      <button onClick={dec}>−</button>
-      <button onClick={inc}>+</button>
-      <button onClick={reset}>Reset</button>
+      <h1>Todos ({remaining} left)</h1>
+
+      <form onSubmit={e => {
+        e.preventDefault();
+        const input = e.currentTarget.elements[0] as HTMLInputElement;
+        addTodo(input.value);
+        input.value = '';
+      }}>
+        <input placeholder="What needs to be done?" />
+        <button type="submit">Add</button>
+      </form>
+
+      <ul>
+        {todoAtoms.map((atom, i) => (
+          <TodoItem key={i} atom={atom} index={i} />
+        ))}
+      </ul>
+
+      <button onClick={clearDone}>Clear done</button>
+      <button onClick={resetTodos}>Reset all</button>
     </div>
   );
 };
 ```
 
-That's it. `useCounter()` subscribes the component. `inc`, `dec`, and `reset` are plain functions — call them from anywhere: event handlers, effects, other modules, even outside React.
+**What's happening:**
+
+- `todosAtom` holds the array. `splitAtom` breaks it into per-item atoms so changing one todo doesn't re-render the list.
+- `remainingAtom` is a read-only derived atom — it recomputes automatically when `todosAtom` changes.
+- `addTodo`, `toggleTodo`, `clearDone`, `resetTodos` are plain functions. No dispatch, no action types.
+- `useValue` subscribes a component. That's the only hook.
 
 ---
 
-## Core API
+## API
 
-### `atom(initialValue, config?)`
-
-Creates a reactive atom. This is the fundamental building block.
+### Atoms
 
 ```ts
-import { atom } from 'nirdjs';
+const a = atom(initialValue, config?)
 
-const nameAtom = atom('Alice');
-
-nameAtom.get();          // 'Alice'
-nameAtom.set('Bob');     // set directly
-nameAtom.update(n => n.toUpperCase()); // update from previous value
+a.get()            // current value
+a.set(value)       // set new value, notify subscribers
+a.update(fn)       // set from previous: fn(prev) => next
+a.reset()          // restore to initialValue
+a.sub(fn)          // subscribe: fn(next, prev)
+a.unsub(fn)        // unsubscribe
 ```
 
-| Method | Description |
-|---|---|
-| `.get()` | Returns the current value |
-| `.set(value)` | Sets a new value, notifies subscribers |
-| `.update(fn)` | Applies `fn(currentValue)` and sets the result |
-| `.sub(fn)` | Subscribe to changes — `fn(nextValue, prevValue)` |
-| `.unsub(fn)` | Unsubscribe |
-| `.toString()` | Debug-friendly string representation |
+Config: `{ debugLabel?, ignoreWhen?, allowFnValue? }`
 
-#### Config options
+### React Hook
 
 ```ts
-const atom = atom(value, {
-  debugLabel: 'myAtom',        // label for debugging
-  ignoreWhen: (prev, next) =>  // skip notification when true
-    prev === next,             // (default: strict equality + NaN handling)
-  allowFnValue: false,         // set to true to store functions as values
-});
+const value = useValue(atom)  // subscribe component to atom
 ```
 
-### `useValue(atom)`
-
-React hook that subscribes the component to an atom. Re-renders only when the atom's value changes.
-
-```tsx
-import { atom, useValue } from 'nirdjs';
-
-const themeAtom = atom<'light' | 'dark'>('dark');
-
-const ThemeIndicator = () => {
-  const theme = useValue(themeAtom);
-  return <span>Current theme: {theme}</span>;
-};
-```
-
----
-
-## Derived State
-
-### `derive(source, get, set, config?)`
-
-Creates an atom that derives its value from a source atom. Changes flow in both directions.
+### Derived Atoms
 
 ```ts
-import { atom, derive, NeverSet } from 'nirdjs';
+// read-only
+const derived = derive(source, val => transform(val), NeverSet)
 
-const userAtom = atom({ first: 'Ada', last: 'Lovelace' });
+// read-write
+const derived = derive(source, val => toB(val), (bVal, aVal) => toA(bVal))
 
-// Read-only derived atom
-const fullNameAtom = derive(
-  userAtom,
-  user => `${user.first} ${user.last}`,
-  NeverSet, // marks this atom as read-only
-);
-
-fullNameAtom.get(); // 'Ada Lovelace'
+// single property
+const nameAtom = propertyAtom(userAtom, 'name')
 ```
 
+### Arrays
+
 ```ts
-// Read-write derived atom
-const celsiusAtom = atom(0);
-
-const fahrenheitAtom = derive(
-  celsiusAtom,
-  c => c * 9 / 5 + 32,           // celsius → fahrenheit
-  (f) => (f - 32) * 5 / 9,       // fahrenheit → celsius
-);
-
-fahrenheitAtom.set(212);
-celsiusAtom.get(); // 100
+const itemAtoms = splitAtom(arrayAtom)     // array atom → atom per element
+updateElt(arrayAtom, index, fn)            // update one element
 ```
 
-### `propertyAtom(source, key, config?)`
-
-Shorthand for deriving a single property from an object atom. Read-write by default.
+### Batching
 
 ```ts
-import { atom, propertyAtom } from 'nirdjs';
-
-const settingsAtom = atom({ volume: 80, muted: false });
-
-const volumeAtom = propertyAtom(settingsAtom, 'volume');
-volumeAtom.set(50); // settingsAtom is now { volume: 50, muted: false }
-```
-
----
-
-## Arrays
-
-### `splitAtom(source, itemConfig?, containerConfig?)`
-
-Splits an array atom into an array of individual item atoms. Changing one item re-renders only that item's subscribers — not the entire list.
-
-```ts
-import { atom, splitAtom, useValue } from 'nirdjs';
-
-const todosAtom = atom(['Buy milk', 'Write code', 'Ship it']);
-const todoAtomsAtom = splitAtom(todosAtom);
-
-const TodoList = () => {
-  const todoAtoms = useValue(todoAtomsAtom);
-  return (
-    <ul>
-      {todoAtoms.map((todoAtom, i) => (
-        <TodoItem key={i} atom={todoAtom} />
-      ))}
-    </ul>
-  );
-};
-
-const TodoItem = ({ atom }: { atom: Atom<string> }) => {
-  const text = useValue(atom);
-  return <li>{text}</li>;
-};
-```
-
-### `updateElt(arrayAtom, index, updateFn)`
-
-Update a single element by index without replacing the whole array.
-
-```ts
-import { atom, updateElt } from 'nirdjs';
-
-const scores = atom([10, 20, 30]);
-updateElt(scores, 1, prev => prev + 5); // [10, 25, 30]
-```
-
----
-
-## Batching
-
-Wrap multiple atom updates in `batch()` to defer notifications until the end. Notifications are **deduplicated per atom** — if you set the same atom 10 times, subscribers fire only once with the final value.
-
-```ts
-import { atom, batch } from 'nirdjs';
-
-const x = atom(0);
-const y = atom(0);
-
 await batch(() => {
-  x.set(1);
-  y.set(1);
-  x.set(2);  // overwrites the first x.set
-  y.set(2);  // overwrites the first y.set
-});
-// x subscribers called once with (2, 0)
-// y subscribers called once with (2, 0)
+  a.set(1)
+  b.set(2)
+})
+// subscribers notified once, deduplicated per atom
 ```
 
-Nested batches are supported — notifications flush when the outermost batch completes.
-
----
-
-## Helpers
+### Helpers
 
 ```ts
-import { atomSetter, atomGetter } from 'nirdjs';
-
-const darkModeAtom = atom(false);
-
-// Create standalone getter/setter functions
-export const getDarkMode = atomGetter(darkModeAtom);  // () => boolean
-export const setDarkMode = atomSetter(darkModeAtom);  // (value: boolean) => void
+const getVal = atomGetter(atom)   // () => Value
+const setVal = atomSetter(atom)   // (value) => void
 ```
 
----
+### SSR
 
-## SSR
+```ts
+import { disableDefaultStore, setStoreProvider, createAtomStore } from 'nirdjs';
+import { asyncLocalStorageStoreProvider, execWithAtom } from 'nirdjs/ssr/AsyncLocalStorageAtomProvider';
 
-For server-side rendering, each request must have its own isolated store. nirdjs provides `AsyncLocalStorage`-based isolation out of the box.
-
-```tsx
-import { atom, useValue } from 'nirdjs';
-import {
-  disableDefaultStore,
-  setStoreProvider,
-  createAtomStore,
-} from 'nirdjs';
-import {
-  asyncLocalStorageStoreProvider,
-  execWithAtom,
-} from 'nirdjs/ssr/AsyncLocalStorageAtomProvider';
-
-// 1. Disable the global default store
 disableDefaultStore();
 setStoreProvider(asyncLocalStorageStoreProvider);
 
-// 2. Each request gets its own store
-const pageAtom = atom('');
-
-app.get('/', (req, res) => {
-  const html = execWithAtom(createAtomStore(), () => {
-    pageAtom.set(req.url);
-    return renderToString(<App />);
-  });
-  res.send(html);
-});
+// each request gets its own store
+const html = execWithAtom(createAtomStore(), () => renderToString(<App />));
 ```
-
-Two concurrent requests will never share state — each runs in its own `AsyncLocalStorage` context.
-
----
-
-## TypeScript
-
-nirdjs is written in TypeScript. All atoms are fully typed — generics propagate through `derive`, `propertyAtom`, `splitAtom`, and `useValue` automatically.
-
-```ts
-// Type is inferred as Atom<{ name: string; age: number }>
-const userAtom = atom({ name: 'Alice', age: 30 });
-
-// Type is inferred as Atom<string>
-const nameAtom = propertyAtom(userAtom, 'name');
-
-// Explicit generic when needed
-const idAtom = atom<string | null>(null);
-```
-
----
-
-## API Reference
-
-| Export | Description |
-|---|---|
-| `atom(value, config?)` | Create a reactive atom |
-| `useValue(atom)` | React hook — subscribe a component to an atom |
-| `derive(source, get, set, config?)` | Create a derived atom from a source atom |
-| `NeverSet` | Pass as the setter to `derive()` for read-only atoms |
-| `propertyAtom(source, key, config?)` | Derive a single property of an object atom |
-| `splitAtom(source)` | Split an array atom into individual item atoms |
-| `updateElt(arrayAtom, i, fn)` | Update one element in an array atom |
-| `batch(fn)` | Batch updates, deduplicate notifications |
-| `atomSetter(atom)` | Create a standalone setter function |
-| `atomGetter(atom)` | Create a standalone getter function |
-| `createAtomStore()` | Create an isolated store (for SSR) |
-| `disableDefaultStore()` | Disable the global store (for SSR) |
-| `setStoreProvider(fn)` | Set a custom store resolver |
-| `isIdentical` | Default equality check (`===` + NaN) |
-| `neverIgnore` | Config value to always notify on set |
 
 ---
 
 ## License
 
-[Apache-2.0](./LICENSE) — Dima Kaigorodov
+[Apache-2.0](./LICENSE)
 
 ## Links
 
